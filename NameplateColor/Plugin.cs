@@ -7,9 +7,6 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Game.ClientState.Objects;
 
-//using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.DrunkenToad;
-
 using System;
 using System.IO;
 using System.Reflection;
@@ -60,11 +57,10 @@ namespace NameplateColor
                 PluginServices.DalamudPluginInterface.UiBuilder.Draw += DrawUI;
                 PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-                Logger.LogInfo("Start My Plugin");
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to Plugin Constructor.");
+                
             }
 
         }
@@ -82,7 +78,6 @@ namespace NameplateColor
             PluginServices.DalamudPluginInterface.UiBuilder.Draw -= DrawUI;
             PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
 
-            Logger.LogInfo("Quit My Plugin");
         }
 
         private void OnCommand(string command, string args)

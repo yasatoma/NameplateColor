@@ -6,8 +6,10 @@
   "InternalName": "NameplateColor",
   "ApplicableVersion": "any",
   "Tags": [
-    "sample",
-    "plugin",
-    "goats"
+    "nameplate",
+    "colors"
+  ],
+  "CategoryTags": [
+    "ui"
   ]
 }

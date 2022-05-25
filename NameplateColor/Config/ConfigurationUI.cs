@@ -4,7 +4,6 @@ using System;
 using System.Numerics;
 using XivCommon.Functions.NamePlates;
 using Lumina.Excel.GeneratedSheets;
-using Dalamud.DrunkenToad;
 using NameplateColor.Data;
 
 namespace NameplateColor.Config
