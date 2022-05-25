@@ -1,0 +1,13 @@
+{
+  "Author": "yasatoma",
+  "Name": "NameplateColor",
+  "Punchline": "Nameplate Color Change.",
+  "Description": "Change Nameplate's color to favorite color per role, and hide FreeCompanyName.",
+  "InternalName": "NameplateColor",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "sample",
+    "plugin",
+    "goats"
+  ]
+}
