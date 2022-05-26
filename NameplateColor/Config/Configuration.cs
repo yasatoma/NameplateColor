@@ -2,7 +2,7 @@
 using Dalamud.Plugin;
 using System;
 using System.Numerics;
-using XivCommon.Functions.NamePlates;
+using System.Collections.Generic;
 
 namespace NameplateColor.Config
 {
@@ -15,11 +15,17 @@ namespace NameplateColor.Config
         public bool Enabled { get; set; } = false;
 
         public ushort colorTank = 37;
-        public ushort colorHealer = 508;
-        public ushort colorDPS = 42;
+        public ushort colorHealer = 42;
+        public ushort colorDPS = 508;
         public ushort colorHandLand = 22;
 
-        public bool fcNameHide = false;
+        public ushort colorWhiteList = 1;
+        public ushort colorBlackList = 5;
+
+        public bool fcNameHide = true;
+
+        public List<string> whiteList = new();
+        public List<string> blackList = new();
 
         // the below exist just to make saving less cumbersome
 

@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
-    <Copyright></Copyright>
+    <Version>0.0.0.2</Version>
+    <Description>Change Nameplate's color to favorite color per role</Description>
+    <Copyright>yasatoma</Copyright>
     <PackageProjectUrl>https://github.com/yasatoma/NameplateColor</PackageProjectUrl>
   </PropertyGroup>
 
@@ -21,14 +21,17 @@
 
   <PropertyGroup>
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
-    <DebugType>none</DebugType>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Optimize>True</Optimize>
     <DebugType>none</DebugType>
   </PropertyGroup>
 
@@ -84,6 +87,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <None Update="NameplateColor.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

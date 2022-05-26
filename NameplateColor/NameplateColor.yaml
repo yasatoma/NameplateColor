@@ -1,0 +1,11 @@
+﻿name: NameplateColor
+author: yasatoma
+punchline:  Change Nameplate's color to favorite color per role.
+description: |-
+    Change Nameplate's color to favorite color per role, and hide FreeCompanyName.
+tags:
+    - nameplate
+    - colors
+repo_url: https://github.com/yasatoma/NameplateColor
+icon_url: https://raw.githubusercontent.com/yasatoma/MyDalamudPlugins/master/plugins/NameplateColor/Icon.png
+dalamud_api_level: 6

@@ -11,6 +11,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Logging;
 
 
 namespace NameplateColor.Nameplates
@@ -100,7 +101,23 @@ namespace NameplateColor.Nameplates
                 // 自分自身の色は変更しない
                 if (playerCharacter1.ObjectId == PluginServices.ClientState.LocalPlayer?.ObjectId) return;
 
-                if (playerCharacter1.ClassJob.GameData != null)
+                // WhiteListのチェック
+                string playerName = playerCharacter1.Name + "@" + playerCharacter1.HomeWorld.GameData.Name;
+                if (this.plugin.Configuration.whiteList.Contains(playerName))
+                {
+                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorWhiteList));
+                    name.Payloads.Add(new UIForegroundPayload(0));
+                }
+
+                // BlackListのチェック
+                else if (this.plugin.Configuration.blackList.Contains(playerName))
+                {
+                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorBlackList));
+                    name.Payloads.Add(new UIForegroundPayload(0));
+                }
+
+                // Listに存在しない場合
+                else if (playerCharacter1.ClassJob.GameData != null)
                 {
 
                     switch (playerCharacter1.ClassJob.GameData?.Role)
