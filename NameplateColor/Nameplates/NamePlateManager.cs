@@ -51,6 +51,7 @@ namespace NameplateColor.Nameplates
 
                 if (m_Nameplate != null)
                 {
+                    PluginLog.LogDebug("NameplateColor: Hook.");
                     m_Nameplate.PlayerNameplateUpdated += Nameplate_PlayerNameplateUpdated;
                 }
             }
@@ -63,6 +64,7 @@ namespace NameplateColor.Nameplates
                 m_Nameplate.PlayerNameplateUpdated -= Nameplate_PlayerNameplateUpdated;
                 m_Nameplate.Dispose();
                 m_Nameplate = null;
+                PluginLog.LogDebug("NameplateColor: Unhook.");
             }
         }
 
@@ -106,7 +108,7 @@ namespace NameplateColor.Nameplates
                 if (this.plugin.Configuration.whiteList.Contains(playerName))
                 {
                     name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorWhiteList));
-                    name.Payloads.Add(new UIForegroundPayload(0));
+                    name.Payloads.Add(new UIGlowPayload(17));
                 }
 
                 // BlackListのチェック

@@ -43,7 +43,7 @@ namespace NameplateColor
             try
             {
 
-                PluginLog.Information(String.Format("NameplateColor ver {0} : Start. ", Assembly.GetExecutingAssembly().GetName().Version));
+                PluginLog.LogDebug(String.Format("NameplateColor ver {0} : Start. ", Assembly.GetExecutingAssembly().GetName().Version));
                 PluginServices.Initialize(pluginInterface);
 
                 PluginServices.CommandManager.AddHandler(commandName, new CommandInfo(OnCommand)
@@ -90,6 +90,7 @@ namespace NameplateColor
                 PluginServices.CommandManager.RemoveHandler(commandName);
                 PluginServices.DalamudPluginInterface.UiBuilder.Draw -= DrawUI;
                 PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
+                PluginLog.LogDebug("NameplateColor: Dispose.");
             }
             catch (Exception ex)
             {

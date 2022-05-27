@@ -38,6 +38,9 @@ namespace NameplateColor.Config
 
         public ConfigurationUI(Plugin plugin, Configuration configuration)
         {
+            try
+            {
+
             this.plugin = plugin;
             this.configuration = configuration;
 
@@ -57,6 +60,11 @@ namespace NameplateColor.Config
                     selectedWorldNo2 = i;
                     break;
                 }
+            }
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI Constructor.");
             }
 
         }
