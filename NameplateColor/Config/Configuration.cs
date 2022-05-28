@@ -19,13 +19,16 @@ namespace NameplateColor.Config
         public ushort colorDPS = 508;
         public ushort colorHandLand = 22;
 
-        public ushort colorWhiteList = 1;
-        public ushort colorBlackList = 5;
+        public ushort colorFriend = 62;
+
+        public ushort colorSpecialColor1 = 1;
+        public ushort colorSpecialColor2 = 5;
 
         public bool fcNameHide = true;
+        public bool useFriendColor = false;
 
-        public List<string> whiteList = new();
-        public List<string> blackList = new();
+        public List<string> SpecialColor1List = new();
+        public List<string> SpecialColor2List = new();
 
         // the below exist just to make saving less cumbersome
 

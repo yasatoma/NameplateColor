@@ -11,6 +11,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.ClientState.Objects.SubKinds;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Logging;
 
 
@@ -95,26 +96,32 @@ namespace NameplateColor.Nameplates
 
         private void AddTagsToNameplate(GameObject gameObject, SeString name)
         {
-
-
             if (gameObject is PlayerCharacter playerCharacter1)
             {
 
                 // 自分自身の色は変更しない
                 if (playerCharacter1.ObjectId == PluginServices.ClientState.LocalPlayer?.ObjectId) return;
 
-                // WhiteListのチェック
-                string playerName = playerCharacter1.Name + "@" + playerCharacter1.HomeWorld.GameData.Name;
-                if (this.plugin.Configuration.whiteList.Contains(playerName))
+                // SpecialColor1 Listのチェック
+                string playerName = playerCharacter1.Name + "@" + playerCharacter1.HomeWorld.GameData!.Name;
+                if (this.plugin.Configuration.SpecialColor1List.Contains(playerName))
                 {
-                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorWhiteList));
+                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor1));
                     name.Payloads.Add(new UIGlowPayload(17));
                 }
 
-                // BlackListのチェック
-                else if (this.plugin.Configuration.blackList.Contains(playerName))
+                // SpecialColor2 Listのチェック
+                else if (this.plugin.Configuration.SpecialColor2List.Contains(playerName))
                 {
-                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorBlackList));
+                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor2));
+                    name.Payloads.Add(new UIForegroundPayload(0));
+                }
+
+                // フレンドリストのチェック
+                else if (this.plugin.Configuration.useFriendColor && (playerCharacter1.StatusFlags & StatusFlags.IsCasting) == StatusFlags.IsCasting)
+                {
+                    // need implements
+                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorFriend));
                     name.Payloads.Add(new UIForegroundPayload(0));
                 }
 

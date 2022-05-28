@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors></Authors>
     <Company></Company>
-    <Version>0.0.0.3</Version>
+    <Version>0.0.0.4</Version>
     <Description>Change Nameplate's color to favorite color per role</Description>
     <Copyright>yasatoma</Copyright>
     <PackageProjectUrl>https://github.com/yasatoma/NameplateColor</PackageProjectUrl>

@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using NameplateColor.Data;
 
@@ -41,26 +42,26 @@ namespace NameplateColor.Config
             try
             {
 
-            this.plugin = plugin;
-            this.configuration = configuration;
+                this.plugin = plugin;
+                this.configuration = configuration;
 
-            worlds = PluginServices.DataManager.GetExcelSheet<World>()
+                worlds = PluginServices.DataManager.GetExcelSheet<World>()!
                 .Where(world => world.IsPublic)
                 .OrderBy(world => world.Name.ToString())
                 .Select(world => world.Name.ToString())
                 .ToArray();
 
-            string localWorld = PluginServices.ClientState.LocalPlayer.CurrentWorld.GameData.Name;
+                string localWorld = PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name;
 
-            for (int i = 0; i < worlds.Length; i++)
-            {
-                if (worlds[i] == localWorld)
+                for (int i = 0; i < worlds.Length; i++)
                 {
-                    selectedWorldNo1 = i;
-                    selectedWorldNo2 = i;
-                    break;
+                    if (worlds[i] == localWorld)
+                    {
+                        selectedWorldNo1 = i;
+                        selectedWorldNo2 = i;
+                        break;
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {
@@ -95,19 +96,19 @@ namespace NameplateColor.Config
             }
 
             // 初期サイズ設定
-            //ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, new Vector2(300, 200));
-            ImGui.SetNextWindowSize(new Vector2(300, 200), ImGuiCond.FirstUseEver);
-
+            ImGui.SetNextWindowSize(new Vector2(640, 480), ImGuiCond.FirstUseEver);
 
             // 最小サイズ設定
-            //ImGui.SetNextWindowSizeConstraints(new Vector2(300, 200), new Vector2(300, 200));
+            ImGui.SetNextWindowSizeConstraints(new Vector2(640, 480), new Vector2(640, 800));
             ImGui.Separator();
 
-            if (ImGui.Begin("NameplateColorChange Congfig", ref visible, /*ImGuiWindowFlags.NoResize |*/ ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
+            if (ImGui.Begin(
+                $"NameplateColor Congfig {Assembly.GetExecutingAssembly().GetName().Version}", 
+                ref visible, 
+                ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
 
                 bool _enabled = configuration.Enabled;
-
 
                 if (ImGui.Checkbox("Enabled", ref _enabled))
                 {
@@ -120,26 +121,62 @@ namespace NameplateColor.Config
                 if (_enabled)
                 {
                     // Role Color Setting Panel
-                    DrawRoleColorPanel();
+                    DrawColorSettingPanel();
 
-                    // WhiteList Setting Panel
-                    DrawWhiteListSettingPanel();
+                    #region ----- SpecialColor1 Group Start -----
+                    ImGui.BeginGroup();
+
+                    ImGui.TextColored(ImGuiColors.DalamudViolet, "SpecialColor1 List.");
+                    ImGui.BeginChild(
+                        "SpecialColor1_PlayerList",
+                        new Vector2(205, 0) * ImGuiHelpers.GlobalScale, true);
+
+                    // SpecialColor1 List
+                    DrawSpecialColor1ListSettingPanel();
+                    
+                    ImGui.EndChild();
+                    ImGui.EndGroup();
+                    #endregion ----- SpecialColor1 List Group End -----
+
                     ImGui.SameLine();
 
-                    // WhiteList Setting Panel
-                    DrawBlackListSettingPanel();
+                    #region ----- SpecialColor2 Group Start -----
+                    ImGui.BeginGroup();
+
+                    ImGui.TextColored(ImGuiColors.DalamudViolet, "SpecialColor2 List.");
+                    ImGui.BeginChild(
+                          "SpecialColor2_PlayerList",
+                          new Vector2(205, 0) * ImGuiHelpers.GlobalScale, true);
+
+                    // SpecialColor2 List
+                    DrawSpecialColor2ListSettingPanel();
+
+                    ImGui.EndChild();
+                    ImGui.EndGroup();
+                    #endregion ----- SpecialColor2 List Group End -----
+
                     ImGui.SameLine();
 
-                    // WhiteList Setting Panel
-                    DrawPlayerAddPanel();
+                    #region ----- Player Add Panel Start -----
+                    // Right: PlayerAdd Panel
+                    ImGui.BeginGroup();
+
+                    // SpecialColor1 Add Panel
+                    DrawSpecialColor1PlayerAddPanel();
+                    ImGui.Spacing();
+
+                    // SpecialColor2 Add Panel
+                    DrawSpecialColor2PlayerAddPanel();
+
+                    ImGui.EndGroup();
+                    #endregion ----- Player Add Panel End -----
 
                 }
-                ImGui.Separator();
             }
             ImGui.End();
         }
 
-        private void DrawRoleColorPanel()
+        private void DrawColorSettingPanel()
         {
 
             // FCName Visible
@@ -149,8 +186,19 @@ namespace NameplateColor.Config
                 configuration.fcNameHide = _fcNameHide;
                 configuration.Save();
             }
+            ImGui.SameLine();
+
+            bool _useFriendColor = configuration.useFriendColor;
+            if (ImGui.Checkbox("Use Friend Color", ref _useFriendColor))
+            {
+                configuration.useFriendColor = _useFriendColor;
+                configuration.Save();
+            }
 
             ImGui.BeginGroup();
+
+            ImGui.TextColored(ImGuiColors.DalamudViolet, "Role Color, When no condition.");
+
             ushort value;
             // TANK用色設定
             value = configuration.colorTank;
@@ -200,107 +248,118 @@ namespace NameplateColor.Config
             ImGui.SameLine();
 
 
-            ImGui.SetNextItemWidth(200f * ImGuiHelpers.GlobalScale);
+            //ImGui.SetNextItemWidth(200f * ImGuiHelpers.GlobalScale);
             ImGui.BeginGroup();
 
-            // WhiteList用色設定
-            value = configuration.colorWhiteList;
-            ColorPickerButton("WhiteList", ref value);
-            if (configuration.colorWhiteList != value)
+            ImGui.TextColored(ImGuiColors.DalamudViolet, "Conditional Color.");
+
+            // SpecialColor1 List用色設定
+            value = configuration.colorSpecialColor1;
+            ColorPickerButton("SpecialColor1List", ref value);
+            if (configuration.colorSpecialColor1 != value)
             {
-                configuration.colorWhiteList = value;
+                configuration.colorSpecialColor1 = value;
                 configuration.Save();
             }
             ImGui.SameLine();
-            ImGui.Text("WhiteList");
+            ImGui.Text("SpecialColor1");
 
-            // BlackList用色設定
-            value = configuration.colorBlackList;
-            ColorPickerButton("BlackList", ref value);
-            if (configuration.colorBlackList != value)
+            // SpecialColor2 List用色設定
+            value = configuration.colorSpecialColor2;
+            ColorPickerButton("SpecialColor2List", ref value);
+            if (configuration.colorSpecialColor2 != value)
             {
-                configuration.colorBlackList = value;
+                configuration.colorSpecialColor2 = value;
                 configuration.Save();
             }
             ImGui.SameLine();
-            ImGui.Text("BlackList");
+            ImGui.Text("SpecialColor2");
 
-            ImGui.EndGroup();
-
-        }
-
-        private void DrawWhiteListSettingPanel()
-        {
-
-            // Left: PlayerList Panel
-            ImGui.BeginGroup();
-
-            ImGui.TextColored(ImGuiColors.DalamudViolet, "White List.");
-            ImGui.BeginChild(
-                  "WhitePlayerList",
-                  new Vector2(205 , 0) * ImGuiHelpers.GlobalScale,
-                  true);
-
-            // player = name@worldName
-            foreach (string player in this.configuration.whiteList)
+            // Friend Color用色設定
+            value = configuration.colorFriend;
+            ColorPickerButton("FriendColor", ref value);
+            if (configuration.colorFriend != value)
             {
-                ImGui.Selectable(player);
+                configuration.colorFriend = value;
+                configuration.Save();
             }
-
-            ImGui.EndChild();
-            ImGui.EndGroup();
-
             ImGui.SameLine();
+            ImGui.Text("FriendColor");
+            ImGui.SameLine();
+            //ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, 30f);
+            ImGui.TextColored(ImGuiColors.DalamudGrey2, "When [Use Friend Color] is enabled only.");
+            //ImGui.PopStyleVar();
+            ImGui.EndGroup();
+
 
         }
 
-        private void DrawBlackListSettingPanel()
+        private void DrawSpecialColor1ListSettingPanel()
         {
+            // player = name@worldName
+            int i = 1;
+            foreach (string player in this.configuration.SpecialColor1List)
+            {
+                if (ImGui.Selectable(
+                    player + "###SpecialColor1_ListPlayer_Selectable_" + i,
+                    false,
+                    ImGuiSelectableFlags.AllowDoubleClick))
+                {
+                    if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    {
+                        // Confirm Window
+                        this.plugin.playerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor1ListDelete, player);
+                    }
+                }
+                i++;
+            }
+        }
 
-            // Center: PlayerList Panel
-            ImGui.BeginGroup();
-
-            ImGui.TextColored(ImGuiColors.DalamudViolet, "Balck List.");
-            ImGui.BeginChild(
-                  "BlackPlayerList",
-                  new Vector2(205, 0) * ImGuiHelpers.GlobalScale,
-                  true);
+        private void DrawSpecialColor2ListSettingPanel()
+        {
 
             // player = name@worldName
-            foreach (string player in this.configuration.blackList)
+            int i = 1;
+            foreach (string player in this.configuration.SpecialColor2List)
             {
-                ImGui.Selectable(player);
-            }
+                if (ImGui.Selectable(
+                    player + "###SpecialColor2_ListPlayer_Selectable_" + i,
+                    true,
+                    ImGuiSelectableFlags.AllowDoubleClick))
+                {
+                    if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                    {
+                        // Confirm Window
+                        this.plugin.playerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor2ListDelete, player);
+                    }
 
-            ImGui.EndChild();
-            ImGui.EndGroup();
+                }
+                i++;
+            }
         }
 
-        private void DrawPlayerAddPanel()
+        private void DrawSpecialColor1PlayerAddPanel()
         {
 
-            // Right: PlayerAdd Panel
-            ImGui.BeginGroup();
-
-            // Black List
-            ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to White List.");
+            // SpecialColor1 List
+            ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to SpecialColor1 List.");
             ImGui.Spacing();
 
             ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
             ImGui.Combo(
-                "###AddWhitePlayer",
+                "###AddSpecialColor1Player",
                 ref selectedWorldNo1,
                 worlds,
                 worlds.Length);
             ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
             ImGui.InputTextWithHint(
-                "###WhitePlayerNameAdd_Input",
+                "###SpecialColor1PlayerNameAdd_Input",
                 "player name",
                 ref this.addPlayerInput1,
                 30);
 
             ImGui.Spacing();
-            if (ImGui.Button("Add" + "###AddWhitePlayer_OK_Button"))
+            if (ImGui.Button("Add" + "###AddSpecialColor1Player_OK_Button"))
             {
                 this.showInvalidNameError1 = false;
                 this.showDuplicatePlayerError1 = false;
@@ -309,14 +368,14 @@ namespace NameplateColor.Config
                     string player = this.addPlayerInput1 + "@" + this.worlds[this.selectedWorldNo1];
 
                     //存在チェック
-                    if (this.configuration.whiteList.Contains(player))
+                    if (this.configuration.SpecialColor1List.Contains(player))
                     {
                         this.showDuplicatePlayerError1 = true;
                     }
                     else
                     {
                         this.addPlayerInput1 = string.Empty;
-                        this.configuration.whiteList.Add(player);
+                        this.configuration.SpecialColor1List.Add(player);
                         configuration.Save();
                     }
                 }
@@ -327,7 +386,7 @@ namespace NameplateColor.Config
             }
 
             ImGui.SameLine();
-            if (ImGui.Button("Cancel" + "###AddWhitePlayer_Cancel_Button"))
+            if (ImGui.Button("Cancel" + "###AddSpecialColor1Player_Cancel_Button"))
             {
                 this.addPlayerInput1 = string.Empty;
                 this.showInvalidNameError1 = false;
@@ -343,27 +402,30 @@ namespace NameplateColor.Config
             {
                 ImGui.TextColored(ImGuiColors.DPSRed, "This player already exists in your list!");
             }
+        }
 
+        private void DrawSpecialColor2PlayerAddPanel()
+        {
 
-            // Black List
-            ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to Black List.");
+            // SpecialColor2 List
+            ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to SpecialColor2 List.");
             ImGui.Spacing();
 
             ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
             ImGui.Combo(
-                "###AddBlackPlayer",
+                "###AddSpecialColor2Player",
                 ref selectedWorldNo2,
                 worlds,
                 worlds.Length);
             ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
             ImGui.InputTextWithHint(
-                "###BlackPlayerNameAdd_Input",
+                "###SpecialColor2PlayerNameAdd_Input",
                 "player name",
                 ref this.addPlayerInput2,
                 30);
 
             ImGui.Spacing();
-            if (ImGui.Button("Add" + "###AddBlackPlayer_OK_Button"))
+            if (ImGui.Button("Add" + "###AddSpecialColor2Player_OK_Button"))
             {
                 this.showInvalidNameError2 = false;
                 this.showDuplicatePlayerError2 = false;
@@ -372,14 +434,14 @@ namespace NameplateColor.Config
                     string player = this.addPlayerInput2 + "@" + this.worlds[this.selectedWorldNo2];
 
                     //存在チェック
-                    if (this.configuration.blackList.Contains(player))
+                    if (this.configuration.SpecialColor2List.Contains(player))
                     {
                         this.showDuplicatePlayerError2 = true;
                     }
                     else
                     {
                         this.addPlayerInput2 = string.Empty;
-                        this.configuration.blackList.Add(player);
+                        this.configuration.SpecialColor2List.Add(player);
                         configuration.Save();
                     }
                 }
@@ -390,7 +452,7 @@ namespace NameplateColor.Config
             }
 
             ImGui.SameLine();
-            if (ImGui.Button("Cancel" + "###AddBlackPlayer_Cancel_Button"))
+            if (ImGui.Button("Cancel" + "###AddSpecialColor2Player_Cancel_Button"))
             {
                 this.addPlayerInput2 = string.Empty;
                 this.showInvalidNameError2 = false;
@@ -406,12 +468,6 @@ namespace NameplateColor.Config
             {
                 ImGui.TextColored(ImGuiColors.DPSRed, "This player already exists in your list!");
             }
-
-
-            ImGui.EndGroup();
-
-
-
         }
 
         private void ColorPickerButton(string popupID, ref ushort value)
