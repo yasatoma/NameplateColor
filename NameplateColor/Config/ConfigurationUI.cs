@@ -25,17 +25,22 @@ namespace NameplateColor.Config
         // this extra bool exists for ImGui, since you can't ref a property
         private bool visible = false;
 
+        private int selectedEmphasisMark1;
+        private int selectedNameFormat1;
         private int selectedWorldNo1;
         private string addPlayerInput1 = string.Empty;
         private bool showInvalidNameError1;
         private bool showDuplicatePlayerError1;
 
+        private int selectedEmphasisMark2;
+        private int selectedNameFormat2;
         private int selectedWorldNo2;
         private string addPlayerInput2 = string.Empty;
         private bool showInvalidNameError2;
         private bool showDuplicatePlayerError2;
 
         private string[] worlds;
+        string localWorld = string.Empty;
 
         public ConfigurationUI(Plugin plugin, Configuration configuration)
         {
@@ -46,22 +51,13 @@ namespace NameplateColor.Config
                 this.configuration = configuration;
 
                 worlds = PluginServices.DataManager.GetExcelSheet<World>()!
-                .Where(world => world.IsPublic)
-                .OrderBy(world => world.Name.ToString())
-                .Select(world => world.Name.ToString())
-                .ToArray();
+                    .Where(world => world.IsPublic)
+                    .OrderBy(world => world.Name.ToString())
+                    .Select(world => world.Name.ToString())
+                    .ToArray();
 
-                string localWorld = PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name;
+                SetLocalWorldNo();
 
-                for (int i = 0; i < worlds.Length; i++)
-                {
-                    if (worlds[i] == localWorld)
-                    {
-                        selectedWorldNo1 = i;
-                        selectedWorldNo2 = i;
-                        break;
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -95,6 +91,8 @@ namespace NameplateColor.Config
                 return;
             }
 
+            SetLocalWorldNo();
+
             // 初期サイズ設定
             ImGui.SetNextWindowSize(new Vector2(640, 480), ImGuiCond.FirstUseEver);
 
@@ -127,6 +125,50 @@ namespace NameplateColor.Config
                     ImGui.BeginGroup();
 
                     ImGui.TextColored(ImGuiColors.DalamudViolet, "SpecialColor1 List.");
+
+                    #region ----- SpecialColor1 Combo Start -----
+                    ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
+                    if (ImGui.BeginCombo("###SpecialColor1_NameFormat", Common.NameFormat[this.configuration.SpecialColor1NameFormat])) 
+                    {
+                        selectedNameFormat1 = 0;
+                        foreach (string v in Common.NameFormat)
+                        {
+                            if (ImGui.Selectable(v, (selectedNameFormat1 == this.configuration.SpecialColor1NameFormat)))
+                            {
+                                this.configuration.SpecialColor1NameFormat = selectedNameFormat1;
+                                this.configuration.Save();
+                            }
+                            selectedNameFormat1++;
+                        }
+                        ImGui.EndCombo();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("SpecialColor1 Player's Name Format.");
+                    }
+                    ImGui.SameLine();
+
+                    ImGui.SetNextItemWidth(50f * ImGuiHelpers.GlobalScale);
+                    if (ImGui.BeginCombo("###SpecialColor1_EmphasisMark", Common.EmphasisMark[this.configuration.SpecialColor1EmphasisMarkNo]))
+                    {
+                        selectedEmphasisMark1 = 0;
+                        foreach (string v in Common.EmphasisMark)
+                        {
+                            if (ImGui.Selectable(v, (selectedEmphasisMark1 == this.configuration.SpecialColor1EmphasisMarkNo)))
+                            {
+                                this.configuration.SpecialColor1EmphasisMarkNo = selectedEmphasisMark1;
+                                this.configuration.Save();
+                            }
+                            selectedEmphasisMark1++;
+                        }
+                        ImGui.EndCombo();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("EmphasisMark add to PlayerName in SpecialColor1 List.");
+                    }
+                    #endregion ----- SpecialColor1 Combo End -----
+
                     ImGui.BeginChild(
                         "SpecialColor1_PlayerList",
                         new Vector2(205, 0) * ImGuiHelpers.GlobalScale, true);
@@ -144,9 +186,54 @@ namespace NameplateColor.Config
                     ImGui.BeginGroup();
 
                     ImGui.TextColored(ImGuiColors.DalamudViolet, "SpecialColor2 List.");
+
+                    #region ----- SpecialColor2 Combo Start -----
+                    ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
+                    if (ImGui.BeginCombo("###SpecialColor2_NameFormat", Common.NameFormat[this.configuration.SpecialColor2NameFormat]))
+                    {
+                        selectedNameFormat2 = 0;
+                        foreach (string v in Common.NameFormat)
+                        {
+                            if (ImGui.Selectable(v, (selectedNameFormat2 == this.configuration.SpecialColor2NameFormat)))
+                            {
+                                this.configuration.SpecialColor2NameFormat = selectedNameFormat2;
+                                this.configuration.Save();
+                            }
+                            selectedNameFormat2++;
+                        }
+                        ImGui.EndCombo();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("SpecialColor2 Player's Name Format.");
+                    }
+
+                    ImGui.SameLine();
+
+                    ImGui.SetNextItemWidth(50f * ImGuiHelpers.GlobalScale);
+                    if (ImGui.BeginCombo("###SpecialColor2_EmphasisMark", Common.EmphasisMark[this.configuration.SpecialColor2EmphasisMarkNo]))
+                    {
+                        selectedEmphasisMark2 = 0;
+                        foreach (string v in Common.EmphasisMark)
+                        {
+                            if (ImGui.Selectable(v, (selectedEmphasisMark2 == this.configuration.SpecialColor2EmphasisMarkNo)))
+                            {
+                                this.configuration.SpecialColor2EmphasisMarkNo = selectedEmphasisMark2;
+                                this.configuration.Save();
+                            }
+                            selectedEmphasisMark2++;
+                        }
+                        ImGui.EndCombo();
+                    }
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.SetTooltip("EmphasisMark add to PlayerName in SpecialColor2 List.");
+                    }
+                    #endregion ----- SpecialColor2 Combo End -----
+
                     ImGui.BeginChild(
-                          "SpecialColor2_PlayerList",
-                          new Vector2(205, 0) * ImGuiHelpers.GlobalScale, true);
+                        "SpecialColor2_PlayerList",
+                        new Vector2(205, 0) * ImGuiHelpers.GlobalScale, true);
 
                     // SpecialColor2 List
                     DrawSpecialColor2ListSettingPanel();
@@ -625,6 +712,33 @@ namespace NameplateColor.Config
             return !value.Any((char c) => !char.IsLetter(c) && !c.Equals('\'') && !c.Equals('-') && !c.Equals(' '));
         }
 
+        private void SetLocalWorldNo()
+        {
+            try
+            {
+                if (localWorld == PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name) return;
+                
+                localWorld = PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name;
+
+                for (int i = 0; i < worlds.Length; i++)
+                {
+                    if (worlds[i] == localWorld)
+                    {
+                        PluginLog.LogDebug($"NameplateColor: [SetLocalWorldNo] localWorld={localWorld}/WorldNo={i}");
+
+                        selectedWorldNo1 = i;
+                        selectedWorldNo2 = i;
+                        break;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI SetLocalWorldNo.");
+            }
+
+        }
     }
 }
 

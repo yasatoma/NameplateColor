@@ -23,7 +23,6 @@ namespace NameplateColor.Nameplates
         private readonly Plugin plugin;
         private Nameplate? m_Nameplate;
 
-
         public NamePlateManager(Plugin plugin)
         {
             this.plugin = plugin;
@@ -106,13 +105,51 @@ namespace NameplateColor.Nameplates
                 string playerName = playerCharacter1.Name + "@" + playerCharacter1.HomeWorld.GameData!.Name;
                 if (this.plugin.Configuration.SpecialColor1List.Contains(playerName))
                 {
+                    string defaultName;
+                    if (name.Payloads[0] is TextPayload textPayload)
+                    {
+                        defaultName = textPayload.Text!;
+                    }
+                    else
+                    {
+                        defaultName = playerCharacter1.Name.ToString();   
+                    }
+
+                    string convertedName = ConvertNameFormat(
+                            this.plugin.Configuration.SpecialColor1NameFormat,
+                            playerCharacter1.Name.ToString(),
+                            defaultName,
+                            Common.EmphasisMark[this.plugin.Configuration.SpecialColor1EmphasisMarkNo]
+                    );
+
+                    name.Payloads.Clear();
+                    name.Payloads.Insert(0, new TextPayload(convertedName));
                     name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor1));
-                    name.Payloads.Add(new UIGlowPayload(17));
+                    name.Payloads.Add(new UIForegroundPayload(0));
                 }
 
                 // SpecialColor2 Listのチェック
                 else if (this.plugin.Configuration.SpecialColor2List.Contains(playerName))
                 {
+                    string defaultName;
+                    if (name.Payloads[0] is TextPayload textPayload)
+                    {
+                        defaultName = textPayload.Text!;
+                    }
+                    else
+                    {
+                        defaultName = playerCharacter1.Name.ToString();
+                    }
+
+                    string convertedName = ConvertNameFormat(
+                            this.plugin.Configuration.SpecialColor2NameFormat, 
+                            playerCharacter1.Name.ToString(),
+                            defaultName,
+                            Common.EmphasisMark[this.plugin.Configuration.SpecialColor2EmphasisMarkNo]
+                    );
+
+                    name.Payloads.Clear();
+                    name.Payloads.Insert(0, new TextPayload(convertedName));
                     name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor2));
                     name.Payloads.Add(new UIForegroundPayload(0));
                 }
@@ -161,6 +198,36 @@ namespace NameplateColor.Nameplates
             }
         }
 
+        private string ConvertNameFormat(int nameFormatNo, string fullName, string defaultName, string emphasisMark)
+        {
+            string[] nameParts = fullName.Split(" ");
+
+            switch (nameFormatNo)
+            {
+                case 0: // Default
+                    //return defaultName + emphasisMark;
+                    return emphasisMark + defaultName;
+
+                case 1: // FullName
+                    //return fullName + emphasisMark;
+                    return emphasisMark + fullName;
+
+                case 2: // FirstNameInitial
+                    //return nameParts[0].Substring(0, 1) + "." + nameParts[1] + emphasisMark;
+                    return emphasisMark + nameParts[0].Substring(0, 1) + "." + nameParts[1];
+
+                case 3: // FamilyNameInitial
+                    //return nameParts[0] + "." + nameParts[1].Substring(0, 1) + emphasisMark;
+                    return emphasisMark + nameParts[0] + "." + nameParts[1].Substring(0, 1);
+
+                case 4: // AllInitial
+                    //return nameParts[0].Substring(0, 1) + "." + nameParts[1].Substring(0, 1) + emphasisMark;
+                    return emphasisMark + nameParts[0].Substring(0, 1) + "." + nameParts[1].Substring(0, 1);
+
+                default:
+                    throw new Exception("ConvertNameFormatException: UnexpectedNameFormat");
+            }
+        }
 
     }
 

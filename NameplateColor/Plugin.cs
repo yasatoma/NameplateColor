@@ -65,11 +65,6 @@ namespace NameplateColor
 
                 namePlateManager = new NamePlateManager(this);
 
-                var world = PluginServices.ClientState.LocalPlayer?.CurrentWorld.GameData;
-
-                //PluginServices.ChatGui.Print($"Hello, {world?.RowId}:{world?.Name}!");
-
-
                 PluginServices.DalamudPluginInterface.UiBuilder.Draw += DrawUI;
                 PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
