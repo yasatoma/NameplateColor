@@ -10,6 +10,8 @@ using ImGuiNET;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface;
 using Dalamud.Logging;
+using Dalamud.Game.ClientState.Objects.SubKinds;
+
 using Lumina.Excel.GeneratedSheets;
 
 namespace NameplateColor.Config
@@ -428,6 +430,13 @@ namespace NameplateColor.Config
         private void DrawSpecialColor1PlayerAddPanel()
         {
 
+            // Get Target Info
+            PlayerCharacter? target = null;
+            if (PluginServices.ClientState.LocalPlayer!.TargetObject != null && PluginServices.ClientState.LocalPlayer.TargetObject is PlayerCharacter)
+            {
+                target = (PlayerCharacter)PluginServices.ClientState.LocalPlayer.TargetObject;
+            }
+
             // SpecialColor1 List
             ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to SpecialColor1 List.");
             ImGui.Spacing();
@@ -475,9 +484,32 @@ namespace NameplateColor.Config
             ImGui.SameLine();
             if (ImGui.Button("Cancel" + "###AddSpecialColor1Player_Cancel_Button"))
             {
+                int? ret = GetLocalWorldNo(localWorld);
+                if (ret != null)
+                {
+                    this.selectedWorldNo1 = (int)ret;
+                }
                 this.addPlayerInput1 = string.Empty;
                 this.showInvalidNameError1 = false;
                 this.showDuplicatePlayerError1 = false;
+
+            }
+
+            if (target != null)
+            {
+                ImGui.SameLine();
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button(FontAwesomeIcon.Search.ToIconString() + "###AddSpecialColor1Player_Search_Button"))
+                {
+                    int? ret = GetLocalWorldNo(target.HomeWorld.GameData!.Name);
+                    if (ret != null)
+                    {
+                        this.selectedWorldNo1 = (int)ret;
+                    }
+                    this.addPlayerInput1 = target.Name.ToString();
+                }
+                ImGui.PopFont();
+                ImGui.SameLine();
             }
 
             ImGui.Spacing();
@@ -493,6 +525,12 @@ namespace NameplateColor.Config
 
         private void DrawSpecialColor2PlayerAddPanel()
         {
+            // Get Target Info
+            PlayerCharacter? target = null;
+            if (PluginServices.ClientState.LocalPlayer!.TargetObject != null && PluginServices.ClientState.LocalPlayer.TargetObject is PlayerCharacter)
+            {
+                target = (PlayerCharacter)PluginServices.ClientState.LocalPlayer.TargetObject;
+            }
 
             // SpecialColor2 List
             ImGui.TextColored(ImGuiColors.DalamudViolet, "Add player to SpecialColor2 List.");
@@ -541,9 +579,31 @@ namespace NameplateColor.Config
             ImGui.SameLine();
             if (ImGui.Button("Cancel" + "###AddSpecialColor2Player_Cancel_Button"))
             {
+                int? ret = GetLocalWorldNo(localWorld);
+                if (ret != null)
+                {
+                    this.selectedWorldNo2 = (int)ret;
+                }
                 this.addPlayerInput2 = string.Empty;
                 this.showInvalidNameError2 = false;
                 this.showDuplicatePlayerError1 = false;
+            }
+
+            if (target != null)
+            {
+                ImGui.SameLine();
+                ImGui.PushFont(UiBuilder.IconFont);
+                if (ImGui.Button(FontAwesomeIcon.Search.ToIconString() + "###AddSpecialColor2Player_Search_Button"))
+                {
+                    int? ret = GetLocalWorldNo(target.HomeWorld.GameData!.Name);
+                    if (ret != null)
+                    {
+                        this.selectedWorldNo2 = (int)ret;
+                    }
+                    this.addPlayerInput2 = target.Name.ToString();
+                }
+                ImGui.PopFont();
+                ImGui.SameLine();
             }
 
             ImGui.Spacing();
@@ -716,8 +776,9 @@ namespace NameplateColor.Config
         {
             try
             {
+
                 if (localWorld == PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name) return;
-                
+
                 localWorld = PluginServices.ClientState.LocalPlayer!.CurrentWorld.GameData!.Name;
 
                 for (int i = 0; i < worlds.Length; i++)
@@ -736,6 +797,31 @@ namespace NameplateColor.Config
             catch (Exception ex)
             {
                 PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI SetLocalWorldNo.");
+            }
+
+        }
+
+        private int? GetLocalWorldNo(string worldName)
+        {
+            try
+            {
+
+                for (int i = 0; i < worlds.Length; i++)
+                {
+                    if (worlds[i] == worldName)
+                    {
+                        PluginLog.LogDebug($"NameplateColor: [SetLocalWorldNo] localWorld={localWorld}/WorldNo={i}");
+
+                        return i;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI SetLocalWorldNo.");
+                return null;
             }
 
         }
