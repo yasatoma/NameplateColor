@@ -47,6 +47,8 @@ namespace NameplateColor.Config
         public List<string> SpecialColor1List = new();
         public List<string> SpecialColor2List = new();
 
+        public bool ContextMenu { get; set; } = true;
+
         // the below exist just to make saving less cumbersome
 
         [NonSerialized]

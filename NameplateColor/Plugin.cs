@@ -20,23 +20,22 @@ using NameplateColor.Nameplates;
 using NameplateColor.Config;
 using NameplateColor.Data;
 using Lumina.Excel.GeneratedSheets;
+using Dalamud.ContextMenu;
 
 namespace NameplateColor
 {
     public sealed class Plugin : IDalamudPlugin
     {
 
-        private readonly ConfigurationUI ConfigurationUI;
-        public readonly PopupWindow playerDelPopup;
 
         [PluginService]
         [RequiredVersion("1.0")]
         public static ObjectTable ObjectTable { get; private set; } = null!;
 
         public NamePlateManager namePlateManager;
-        public Configuration Configuration { get; init; } = null!;
 
         private WindowSystem WindowSystem { get; }
+        private readonly ContextMenu contextMenu;
 
         public string Name => "NameplateColor";
         private const string commandName = "/np";
@@ -54,16 +53,19 @@ namespace NameplateColor
                     HelpMessage = "Open NamepleteColor ConfigWindow."
                 });
 
-                Configuration = PluginServices.DalamudPluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-                Configuration.Initialize(PluginServices.DalamudPluginInterface);
-                ConfigurationUI = new ConfigurationUI(this, Configuration);
+                PluginServices.Configuration = PluginServices.DalamudPluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+                PluginServices.Configuration.Initialize(PluginServices.DalamudPluginInterface);
+                PluginServices.ConfigWindow = new ConfigWindow();
 
-                this.playerDelPopup = new PopupWindow(this);
+                PluginServices.PlayerDelPopup = new PopupWindow();
                 this.WindowSystem = new WindowSystem("NameplateColorWindowSystem");
-                this.WindowSystem.AddWindow(this.playerDelPopup);
+                this.WindowSystem.AddWindow(PluginServices.PlayerDelPopup);
+
+                PluginServices.ContextMenu = new DalamudContextMenu();
+                this.contextMenu = new ContextMenu();
 
 
-                namePlateManager = new NamePlateManager(this);
+                namePlateManager = new NamePlateManager();
 
                 PluginServices.DalamudPluginInterface.UiBuilder.Draw += DrawUI;
                 PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
@@ -80,15 +82,19 @@ namespace NameplateColor
         {
             try
             {
+
+                PluginServices.ContextMenu.Dispose();
+                this.contextMenu.Dispose();
+
                 PluginServices.DalamudPluginInterface.UiBuilder.Draw -= DrawUI;
                 PluginServices.DalamudPluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
                 if (namePlateManager != null)
                 {
                     namePlateManager.Dispose();
                 }
-                if (ConfigurationUI != null)
+                if (PluginServices.ConfigWindow != null)
                 {
-                    ConfigurationUI.Dispose();
+                    PluginServices.ConfigWindow.Dispose();
                 }
 
                 PluginServices.CommandManager.RemoveHandler(commandName);
@@ -105,17 +111,17 @@ namespace NameplateColor
         private void OnCommand(string command, string args)
         {
             // in response to the slash command, just display our main ui
-            ConfigurationUI.Visible = true;
+            PluginServices.ConfigWindow.Visible = true;
         }
 
         private void DrawUI()
         {
-            ConfigurationUI.Draw();
+            PluginServices.ConfigWindow.DrawConfigWindow();
             this.WindowSystem.Draw();
         }
         private void DrawConfigUI()
         {
-            ConfigurationUI.Visible = true;
+            PluginServices.ConfigWindow.Visible = true;
         }
     }
 }

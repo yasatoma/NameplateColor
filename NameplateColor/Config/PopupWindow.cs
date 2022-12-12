@@ -7,6 +7,7 @@ using Dalamud.Interface.Colors;
 using ImGuiNET;
 using Dalamud.Interface.Windowing;
 using Dalamud.Logging;
+using NameplateColor.Data;
 
 namespace NameplateColor.Config
 {
@@ -16,10 +17,6 @@ namespace NameplateColor.Config
         /// Current player.
         /// </summary>
         public string player = String.Empty;
-
-        private readonly Plugin plugin;
-        private readonly Configuration configuration;
-
 
         private ModalType currentModalType = ModalType.None;
 
@@ -34,17 +31,12 @@ namespace NameplateColor.Config
         /// <summary>
         /// Initializes a new instance of the <see cref="ModalWindow"/> class.
         /// </summary>
-        /// <param name="plugin">PlayerTrack plugin.</param>
-        public PopupWindow(Plugin plugin)
+        public PopupWindow()
             : base("ModalWindow", ImGuiWindowFlags.NoResize)
         {
             try
             {
-                this.plugin = plugin;
-                this.configuration = this.plugin.Configuration;
-
                 this.Size = new Vector2(320, 130);
-
             }
             catch (Exception ex)
             {
@@ -79,11 +71,11 @@ namespace NameplateColor.Config
                 switch (this.currentModalType)
                 { 
                     case ModalType.ConfirmSpecialColor1ListDelete:
-                        list = this.configuration.SpecialColor1List;
+                        list = PluginServices.Configuration.SpecialColor1List;
                         break;
 
                     case ModalType.ConfirmSpecialColor2ListDelete:
-                        list = this.configuration.SpecialColor2List;
+                        list = PluginServices.Configuration.SpecialColor2List;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -91,7 +83,7 @@ namespace NameplateColor.Config
 
                 list.Remove(player);
 
-                configuration.Save();
+                PluginServices.Configuration.Save();
             }
 
             ImGui.SameLine();

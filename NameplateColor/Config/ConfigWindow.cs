@@ -18,12 +18,8 @@ namespace NameplateColor.Config
 {
     // It is good to have this be disposable in general, in case you ever need it
     // to do any cleanup
-    class ConfigurationUI : IDisposable
+    class ConfigWindow : IDisposable
     {
-        private readonly Configuration configuration;
-        private readonly Plugin plugin;
-
-
         // this extra bool exists for ImGui, since you can't ref a property
         private bool visible = false;
 
@@ -44,13 +40,10 @@ namespace NameplateColor.Config
         private string[] worlds;
         string localWorld = string.Empty;
 
-        public ConfigurationUI(Plugin plugin, Configuration configuration)
+        public ConfigWindow()
         {
             try
             {
-
-                this.plugin = plugin;
-                this.configuration = configuration;
 
                 worlds = PluginServices.DataManager.GetExcelSheet<World>()!
                     .Where(world => world.IsPublic)
@@ -63,7 +56,7 @@ namespace NameplateColor.Config
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI Constructor.");
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigWindow Constructor.");
             }
 
         }
@@ -81,9 +74,26 @@ namespace NameplateColor.Config
 
         }
 
-        public void Draw()
+        public void OpenConfig(CharaData charaData)
         {
-            DrawConfigWindow();
+            visible = true;
+
+            #region ----- Charadata Apply ----- 
+
+            int? ret = GetLocalWorldNo(charaData.world);
+            if (ret != null)
+            {
+                this.selectedWorldNo1 = (int)ret;
+                this.selectedWorldNo2 = (int)ret;
+            }
+            this.addPlayerInput1 = charaData.name;
+            this.addPlayerInput2 = charaData.name;
+            #endregion
+
+            PluginLog.LogDebug($"NameplateColor: name={charaData.name}/world={charaData.world}/ret={ret}");
+
+            //DrawConfigWindow();
+
         }
 
         public void DrawConfigWindow()
@@ -108,12 +118,12 @@ namespace NameplateColor.Config
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
 
-                bool _enabled = configuration.Enabled;
+                bool _enabled = PluginServices.Configuration.Enabled;
 
                 if (ImGui.Checkbox("Enabled", ref _enabled))
                 {
-                    configuration.Enabled = _enabled;
-                    configuration.Save();
+                    PluginServices.Configuration.Enabled = _enabled;
+                    PluginServices.Configuration.Save();
                 }
 
                 ImGui.Separator();
@@ -130,15 +140,15 @@ namespace NameplateColor.Config
 
                     #region ----- SpecialColor1 Combo Start -----
                     ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
-                    if (ImGui.BeginCombo("###SpecialColor1_NameFormat", Common.NameFormat[this.configuration.SpecialColor1NameFormat])) 
+                    if (ImGui.BeginCombo("###SpecialColor1_NameFormat", Common.NameFormat[PluginServices.Configuration.SpecialColor1NameFormat])) 
                     {
                         selectedNameFormat1 = 0;
                         foreach (string v in Common.NameFormat)
                         {
-                            if (ImGui.Selectable(v, (selectedNameFormat1 == this.configuration.SpecialColor1NameFormat)))
+                            if (ImGui.Selectable(v, (selectedNameFormat1 == PluginServices.Configuration.SpecialColor1NameFormat)))
                             {
-                                this.configuration.SpecialColor1NameFormat = selectedNameFormat1;
-                                this.configuration.Save();
+                                PluginServices.Configuration.SpecialColor1NameFormat = selectedNameFormat1;
+                                PluginServices.Configuration.Save();
                             }
                             selectedNameFormat1++;
                         }
@@ -151,15 +161,15 @@ namespace NameplateColor.Config
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(50f * ImGuiHelpers.GlobalScale);
-                    if (ImGui.BeginCombo("###SpecialColor1_EmphasisMark", Common.EmphasisMark[this.configuration.SpecialColor1EmphasisMarkNo]))
+                    if (ImGui.BeginCombo("###SpecialColor1_EmphasisMark", Common.EmphasisMark[PluginServices.Configuration.SpecialColor1EmphasisMarkNo]))
                     {
                         selectedEmphasisMark1 = 0;
                         foreach (string v in Common.EmphasisMark)
                         {
-                            if (ImGui.Selectable(v, (selectedEmphasisMark1 == this.configuration.SpecialColor1EmphasisMarkNo)))
+                            if (ImGui.Selectable(v, (selectedEmphasisMark1 == PluginServices.Configuration.SpecialColor1EmphasisMarkNo)))
                             {
-                                this.configuration.SpecialColor1EmphasisMarkNo = selectedEmphasisMark1;
-                                this.configuration.Save();
+                                PluginServices.Configuration.SpecialColor1EmphasisMarkNo = selectedEmphasisMark1;
+                                PluginServices.Configuration.Save();
                             }
                             selectedEmphasisMark1++;
                         }
@@ -191,15 +201,15 @@ namespace NameplateColor.Config
 
                     #region ----- SpecialColor2 Combo Start -----
                     ImGui.SetNextItemWidth(150f * ImGuiHelpers.GlobalScale);
-                    if (ImGui.BeginCombo("###SpecialColor2_NameFormat", Common.NameFormat[this.configuration.SpecialColor2NameFormat]))
+                    if (ImGui.BeginCombo("###SpecialColor2_NameFormat", Common.NameFormat[PluginServices.Configuration.SpecialColor2NameFormat]))
                     {
                         selectedNameFormat2 = 0;
                         foreach (string v in Common.NameFormat)
                         {
-                            if (ImGui.Selectable(v, (selectedNameFormat2 == this.configuration.SpecialColor2NameFormat)))
+                            if (ImGui.Selectable(v, (selectedNameFormat2 == PluginServices.Configuration.SpecialColor2NameFormat)))
                             {
-                                this.configuration.SpecialColor2NameFormat = selectedNameFormat2;
-                                this.configuration.Save();
+                                PluginServices.Configuration.SpecialColor2NameFormat = selectedNameFormat2;
+                                PluginServices.Configuration.Save();
                             }
                             selectedNameFormat2++;
                         }
@@ -213,15 +223,15 @@ namespace NameplateColor.Config
                     ImGui.SameLine();
 
                     ImGui.SetNextItemWidth(50f * ImGuiHelpers.GlobalScale);
-                    if (ImGui.BeginCombo("###SpecialColor2_EmphasisMark", Common.EmphasisMark[this.configuration.SpecialColor2EmphasisMarkNo]))
+                    if (ImGui.BeginCombo("###SpecialColor2_EmphasisMark", Common.EmphasisMark[PluginServices.Configuration.SpecialColor2EmphasisMarkNo]))
                     {
                         selectedEmphasisMark2 = 0;
                         foreach (string v in Common.EmphasisMark)
                         {
-                            if (ImGui.Selectable(v, (selectedEmphasisMark2 == this.configuration.SpecialColor2EmphasisMarkNo)))
+                            if (ImGui.Selectable(v, (selectedEmphasisMark2 == PluginServices.Configuration.SpecialColor2EmphasisMarkNo)))
                             {
-                                this.configuration.SpecialColor2EmphasisMarkNo = selectedEmphasisMark2;
-                                this.configuration.Save();
+                                PluginServices.Configuration.SpecialColor2EmphasisMarkNo = selectedEmphasisMark2;
+                                PluginServices.Configuration.Save();
                             }
                             selectedEmphasisMark2++;
                         }
@@ -269,19 +279,19 @@ namespace NameplateColor.Config
         {
 
             // FCName Visible
-            bool _fcNameHide = configuration.fcNameHide;
+            bool _fcNameHide = PluginServices.Configuration.fcNameHide;
             if (ImGui.Checkbox("FCName Hide", ref _fcNameHide))
             {
-                configuration.fcNameHide = _fcNameHide;
-                configuration.Save();
+                PluginServices.Configuration.fcNameHide = _fcNameHide;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
 
-            bool _useFriendColor = configuration.useFriendColor;
+            bool _useFriendColor = PluginServices.Configuration.useFriendColor;
             if (ImGui.Checkbox("Use Friend Color", ref _useFriendColor))
             {
-                configuration.useFriendColor = _useFriendColor;
-                configuration.Save();
+                PluginServices.Configuration.useFriendColor = _useFriendColor;
+                PluginServices.Configuration.Save();
             }
 
             ImGui.BeginGroup();
@@ -290,45 +300,45 @@ namespace NameplateColor.Config
 
             ushort value;
             // TANK用色設定
-            value = configuration.colorTank;
+            value = PluginServices.Configuration.colorTank;
             ColorPickerButton("TANK", ref value);
-            if (configuration.colorTank != value)
+            if (PluginServices.Configuration.colorTank != value)
             {
-                configuration.colorTank = value;
-                configuration.Save();
+                PluginServices.Configuration.colorTank = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("TANK");
 
             // HEALER用色設定
-            value = configuration.colorHealer;
+            value = PluginServices.Configuration.colorHealer;
             ColorPickerButton("HEALER", ref value);
-            if (configuration.colorHealer != value)
+            if (PluginServices.Configuration.colorHealer != value)
             {
-                configuration.colorHealer = value;
-                configuration.Save();
+                PluginServices.Configuration.colorHealer = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("HEALER");
 
             // DPS用色設定
-            value = configuration.colorDPS;
+            value = PluginServices.Configuration.colorDPS;
             ColorPickerButton("DPS", ref value);
-            if (configuration.colorDPS != value)
+            if (PluginServices.Configuration.colorDPS != value)
             {
-                configuration.colorDPS = value;
-                configuration.Save();
+                PluginServices.Configuration.colorDPS = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("DPS");
 
             // HandLand用色設定
-            value = configuration.colorHandLand;
+            value = PluginServices.Configuration.colorHandLand;
             ColorPickerButton("HandLand", ref value);
-            if (configuration.colorHandLand != value)
+            if (PluginServices.Configuration.colorHandLand != value)
             {
-                configuration.colorHandLand = value;
-                configuration.Save();
+                PluginServices.Configuration.colorHandLand = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("HandLand");
@@ -343,34 +353,34 @@ namespace NameplateColor.Config
             ImGui.TextColored(ImGuiColors.DalamudViolet, "Conditional Color.");
 
             // SpecialColor1 List用色設定
-            value = configuration.colorSpecialColor1;
+            value = PluginServices.Configuration.colorSpecialColor1;
             ColorPickerButton("SpecialColor1List", ref value);
-            if (configuration.colorSpecialColor1 != value)
+            if (PluginServices.Configuration.colorSpecialColor1 != value)
             {
-                configuration.colorSpecialColor1 = value;
-                configuration.Save();
+                PluginServices.Configuration.colorSpecialColor1 = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("SpecialColor1");
 
             // SpecialColor2 List用色設定
-            value = configuration.colorSpecialColor2;
+            value = PluginServices.Configuration.colorSpecialColor2;
             ColorPickerButton("SpecialColor2List", ref value);
-            if (configuration.colorSpecialColor2 != value)
+            if (PluginServices.Configuration.colorSpecialColor2 != value)
             {
-                configuration.colorSpecialColor2 = value;
-                configuration.Save();
+                PluginServices.Configuration.colorSpecialColor2 = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("SpecialColor2");
 
             // Friend Color用色設定
-            value = configuration.colorFriend;
+            value = PluginServices.Configuration.colorFriend;
             ColorPickerButton("FriendColor", ref value);
-            if (configuration.colorFriend != value)
+            if (PluginServices.Configuration.colorFriend != value)
             {
-                configuration.colorFriend = value;
-                configuration.Save();
+                PluginServices.Configuration.colorFriend = value;
+                PluginServices.Configuration.Save();
             }
             ImGui.SameLine();
             ImGui.Text("FriendColor");
@@ -387,7 +397,7 @@ namespace NameplateColor.Config
         {
             // player = name@worldName
             int i = 1;
-            foreach (string player in this.configuration.SpecialColor1List)
+            foreach (string player in PluginServices.Configuration.SpecialColor1List)
             {
                 if (ImGui.Selectable(
                     player + "###SpecialColor1_ListPlayer_Selectable_" + i,
@@ -397,7 +407,7 @@ namespace NameplateColor.Config
                     if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                     {
                         // Confirm Window
-                        this.plugin.playerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor1ListDelete, player);
+                        PluginServices.PlayerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor1ListDelete, player);
                     }
                 }
                 i++;
@@ -409,7 +419,7 @@ namespace NameplateColor.Config
 
             // player = name@worldName
             int i = 1;
-            foreach (string player in this.configuration.SpecialColor2List)
+            foreach (string player in PluginServices.Configuration.SpecialColor2List)
             {
                 if (ImGui.Selectable(
                     player + "###SpecialColor2_ListPlayer_Selectable_" + i,
@@ -419,7 +429,7 @@ namespace NameplateColor.Config
                     if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
                     {
                         // Confirm Window
-                        this.plugin.playerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor2ListDelete, player);
+                        PluginServices.PlayerDelPopup.Open(PopupWindow.ModalType.ConfirmSpecialColor2ListDelete, player);
                     }
 
                 }
@@ -464,15 +474,15 @@ namespace NameplateColor.Config
                     string player = this.addPlayerInput1 + "@" + this.worlds[this.selectedWorldNo1];
 
                     //存在チェック
-                    if (this.configuration.SpecialColor1List.Contains(player))
+                    if (PluginServices.Configuration.SpecialColor1List.Contains(player))
                     {
                         this.showDuplicatePlayerError1 = true;
                     }
                     else
                     {
                         this.addPlayerInput1 = string.Empty;
-                        this.configuration.SpecialColor1List.Add(player);
-                        configuration.Save();
+                        PluginServices.Configuration.SpecialColor1List.Add(player);
+                        PluginServices.Configuration.Save();
                     }
                 }
                 else
@@ -559,15 +569,15 @@ namespace NameplateColor.Config
                     string player = this.addPlayerInput2 + "@" + this.worlds[this.selectedWorldNo2];
 
                     //存在チェック
-                    if (this.configuration.SpecialColor2List.Contains(player))
+                    if (PluginServices.Configuration.SpecialColor2List.Contains(player))
                     {
                         this.showDuplicatePlayerError2 = true;
                     }
                     else
                     {
                         this.addPlayerInput2 = string.Empty;
-                        this.configuration.SpecialColor2List.Add(player);
-                        configuration.Save();
+                        PluginServices.Configuration.SpecialColor2List.Add(player);
+                        PluginServices.Configuration.Save();
                     }
                 }
                 else
@@ -796,7 +806,7 @@ namespace NameplateColor.Config
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI SetLocalWorldNo.");
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigWindow SetLocalWorldNo.");
             }
 
         }
@@ -820,7 +830,7 @@ namespace NameplateColor.Config
             }
             catch (Exception ex)
             {
-                PluginLog.Error(ex, "NameplateColor: Failed to ConfigurationUI SetLocalWorldNo.");
+                PluginLog.Error(ex, "NameplateColor: Failed to ConfigWindow SetLocalWorldNo.");
                 return null;
             }
 

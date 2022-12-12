@@ -1,4 +1,5 @@
-﻿using Dalamud.Data;
+﻿using Dalamud.ContextMenu;
+using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.ClientState.Objects;
@@ -7,6 +8,7 @@ using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
 using Dalamud.Plugin;
+using NameplateColor.Config;
 
 namespace NameplateColor.Data
 {
@@ -21,6 +23,11 @@ namespace NameplateColor.Data
         [PluginService] public static GameGui GameGui { get; set; } = null!;
         [PluginService] public static ObjectTable ObjectTable { get; set; } = null!;
         [PluginService] public static PartyList PartyList { get; set; } = null!;
+
+        internal static Configuration Configuration { get; set; } = null!;
+        internal static DalamudContextMenu ContextMenu { get; set; } = null!;
+        internal static ConfigWindow ConfigWindow { get; set; } = null!;
+        internal static PopupWindow PlayerDelPopup { get; set; } = null!;
 
         public static void Initialize(DalamudPluginInterface pluginInterface)
         {

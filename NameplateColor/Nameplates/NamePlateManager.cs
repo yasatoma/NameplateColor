@@ -20,12 +20,10 @@ namespace NameplateColor.Nameplates
     public class NamePlateManager : IDisposable
     {
 
-        private readonly Plugin plugin;
         private Nameplate? m_Nameplate;
 
-        public NamePlateManager(Plugin plugin)
+        public NamePlateManager()
         {
-            this.plugin = plugin;
 
             PluginServices.ClientState.Login += ClientState_Login;
             PluginServices.ClientState.Logout += ClientState_Logout;
@@ -81,11 +79,11 @@ namespace NameplateColor.Nameplates
         private void Nameplate_PlayerNameplateUpdated(PlayerNameplateUpdatedArgs args)
         {
 
-            if (!plugin.Configuration.Enabled) return;
+            if (!PluginServices.Configuration.Enabled) return;
 
             AddTagsToNameplate(args.PlayerCharacter, args.Name);
 
-            if (this.plugin.Configuration.fcNameHide == true)
+            if (PluginServices.Configuration.fcNameHide == true)
             {
                 args.FreeCompany.Payloads.Clear();
             }
@@ -103,7 +101,7 @@ namespace NameplateColor.Nameplates
 
                 // SpecialColor1 Listのチェック
                 string playerName = playerCharacter1.Name + "@" + playerCharacter1.HomeWorld.GameData!.Name;
-                if (this.plugin.Configuration.SpecialColor1List.Contains(playerName))
+                if (PluginServices.Configuration.SpecialColor1List.Contains(playerName))
                 {
                     string defaultName;
                     if (name.Payloads[0] is TextPayload textPayload)
@@ -116,20 +114,20 @@ namespace NameplateColor.Nameplates
                     }
 
                     string convertedName = ConvertNameFormat(
-                            this.plugin.Configuration.SpecialColor1NameFormat,
+                            PluginServices.Configuration.SpecialColor1NameFormat,
                             playerCharacter1.Name.ToString(),
                             defaultName,
-                            Common.EmphasisMark[this.plugin.Configuration.SpecialColor1EmphasisMarkNo]
+                            Common.EmphasisMark[PluginServices.Configuration.SpecialColor1EmphasisMarkNo]
                     );
 
                     name.Payloads.Clear();
                     name.Payloads.Insert(0, new TextPayload(convertedName));
-                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor1));
+                    name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorSpecialColor1));
                     name.Payloads.Add(new UIForegroundPayload(0));
                 }
 
                 // SpecialColor2 Listのチェック
-                else if (this.plugin.Configuration.SpecialColor2List.Contains(playerName))
+                else if (PluginServices.Configuration.SpecialColor2List.Contains(playerName))
                 {
                     string defaultName;
                     if (name.Payloads[0] is TextPayload textPayload)
@@ -142,23 +140,23 @@ namespace NameplateColor.Nameplates
                     }
 
                     string convertedName = ConvertNameFormat(
-                            this.plugin.Configuration.SpecialColor2NameFormat, 
+                            PluginServices.Configuration.SpecialColor2NameFormat, 
                             playerCharacter1.Name.ToString(),
                             defaultName,
-                            Common.EmphasisMark[this.plugin.Configuration.SpecialColor2EmphasisMarkNo]
+                            Common.EmphasisMark[PluginServices.Configuration.SpecialColor2EmphasisMarkNo]
                     );
 
                     name.Payloads.Clear();
                     name.Payloads.Insert(0, new TextPayload(convertedName));
-                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorSpecialColor2));
+                    name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorSpecialColor2));
                     name.Payloads.Add(new UIForegroundPayload(0));
                 }
 
                 // フレンドリストのチェック
-                else if (this.plugin.Configuration.useFriendColor && (playerCharacter1.StatusFlags & StatusFlags.IsCasting) == StatusFlags.IsCasting)
+                else if (PluginServices.Configuration.useFriendColor && (playerCharacter1.StatusFlags & StatusFlags.IsCasting) == StatusFlags.IsCasting)
                 {
                     // need implements
-                    name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorFriend));
+                    name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorFriend));
                     name.Payloads.Add(new UIForegroundPayload(0));
                 }
 
@@ -170,27 +168,27 @@ namespace NameplateColor.Nameplates
                     {
                         case 1: // Tank
 
-                            name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorTank));
+                            name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorTank));
                             name.Payloads.Add(new UIForegroundPayload(0));
                             break;
                         case 2: // Melee
 
-                            name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorDPS));
+                            name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorDPS));
                             name.Payloads.Add(new UIForegroundPayload(0));
                             break;
                         case 3: // Range
 
-                            name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorDPS));
+                            name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorDPS));
                             name.Payloads.Add(new UIForegroundPayload(0));
                             break;
                         case 4: // Healer
 
-                            name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorHealer));
+                            name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorHealer));
                             name.Payloads.Add(new UIForegroundPayload(0));
                             break;
                         default:
 
-                            name.Payloads.Insert(0, new UIForegroundPayload(this.plugin.Configuration.colorHandLand));
+                            name.Payloads.Insert(0, new UIForegroundPayload(PluginServices.Configuration.colorHandLand));
                             name.Payloads.Add(new UIForegroundPayload(0));
                             break;
                     }
