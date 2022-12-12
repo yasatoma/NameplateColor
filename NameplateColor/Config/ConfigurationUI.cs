@@ -413,7 +413,7 @@ namespace NameplateColor.Config
             {
                 if (ImGui.Selectable(
                     player + "###SpecialColor2_ListPlayer_Selectable_" + i,
-                    true,
+                    false,
                     ImGuiSelectableFlags.AllowDoubleClick))
                 {
                     if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
